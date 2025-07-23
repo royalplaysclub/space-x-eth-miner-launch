@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🚀 Space X ETH Miner</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="background-stars"></div>
+
+  <div id="app">
+    <header>
+      <h1>🚀 SPACE X ETH MINER</h1>
+      <p class="tagline">Mine. Claim. Earn. Upgrade. 🚀</p>
+      <div class="balance-box">
+        <span>🔐 Balance:</span>
+        <span id="eth-balance">0.000000</span> ETH
+      </div>
+    </header>
+
+    <main>
+      <!-- Mining Wheel -->
+      <section id="wheel-section">
+        <h2>🪐 Mining Station</h2>
+        <div class="wheel-container">
+          <img src="assets/images/mining_wheel.png" class="wheel" id="mining-wheel" alt="Mining Wheel">
+          <div class="orbit-items">
+            <img src="assets/icons/eth.png" class="orbit-icon" style="--i:0;" />
+            <img src="assets/icons/rocket.png" class="orbit-icon" style="--i:1;" />
+            <img src="assets/icons/moon.png" class="orbit-icon" style="--i:2;" />
+            <img src="assets/icons/alien.png" class="orbit-icon" style="--i:3;" />
+            <img src="assets/icons/coin.png" class="orbit-icon" style="--i:4;" />
+          </div>
+          <button id="start-mining">Start Mining</button>
+        </div>
+      </section>
+
+      <!-- Claim Sections -->
+      <section id="claim-section">
+        <h2>💸 Daily Claim</h2>
+        <button id="daily-claim">Claim Daily ETH</button>
+        <p id="daily-timer"></p>
+
+        <h2>💎 Treasure Trust</h2>
+        <button id="treasure-claim">Claim Treasure Trust</button>
+        <p id="treasure-timer"></p>
+      </section>
+
+      <!-- Upgrade Miner Section -->
+      <section id="upgrades">
+        <h2>⚙️ Upgrade Your Miner</h2>
+        <div class="tiers" id="miner-tiers">
+          <!-- Cards rendered via JS -->
+        </div>
+        <p class="upgrade-note">💡 Upgrades give more ETH/sec passively even when not mining!</p>
+      </section>
+
+      <!-- Referral Section -->
+      <section id="referrals">
+        <h2>👨‍🚀 Referral System</h2>
+        <div class="referral-code">
+          <strong>Your Referral Code:</strong>
+          <span id="ref-code">Loading...</span>
+          <button id="copy-ref">📋 Copy</button>
+        </div>
+        <input type="text" id="ref-input" placeholder="Enter a referral code to support someone"/>
+        <button id="submit-ref">Submit Referral</button>
+        <div class="ref-list" id="ref-list">
+          <h3>Your Referrals:</h3>
+          <!-- Refs shown from JS -->
+        </div>
+      </section>
+
+      <!-- Withdraw -->
+      <section id="withdraw">
+        <h2>📤 Withdraw Your ETH</h2>
+        <p>Minimum to withdraw: $100 worth of ETH</p>
+        <input type="text" id="wallet-address" placeholder="Your ETH wallet address" />
+        <button id="withdraw-btn">Request Withdraw</button>
+        <p id="withdraw-status"></p>
+      </section>
+    </main>
+
+    <footer>
+      <p>🪐 Powered by the Blockchain. Built for Telegram.</p>
+    </footer>
+  </div>
+
+  <script src="scripts/script.js"></script>
+</body>
+</html>

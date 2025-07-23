@@ -1,0 +1,224 @@
+/* Global Reset & Fonts */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Orbitron', sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at bottom, #0b001a 0%, #000010 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Stars Background Animation */
+#background-stars {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: url('../assets/images/stars.gif') repeat;
+  background-size: cover;
+  z-index: -1;
+  opacity: 0.15;
+}
+
+/* Main App Container */
+#app {
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: #bb86fc;
+  text-shadow: 0 0 10px #8a2be2;
+}
+
+.tagline {
+  font-size: 1rem;
+  color: #cccccc;
+  margin-top: 5px;
+}
+
+.balance-box {
+  background: #1c0033;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  margin-top: 15px;
+  display: inline-block;
+  border: 1px solid #8220d1;
+}
+
+/* Sections */
+section {
+  margin: 40px 0;
+  padding: 20px;
+  background: rgba(20, 0, 40, 0.6);
+  border: 1px solid #3e0c70;
+  border-radius: 15px;
+}
+
+section h2 {
+  font-size: 1.5rem;
+  color: #f2a5ff;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Mining Wheel */
+.wheel-container {
+  position: relative;
+  text-align: center;
+}
+
+.wheel {
+  width: 220px;
+  height: 220px;
+  animation: rotateWheel 0s linear infinite;
+}
+
+@keyframes rotateWheel {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Orbiting Icons Around Wheel */
+.orbit-items {
+  position: absolute;
+  top: 0; left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.orbit-icon {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  animation: orbit 6s linear infinite;
+  transform-origin: 110px center;
+}
+
+.orbit-icon:nth-child(1) { animation-delay: 0s; }
+.orbit-icon:nth-child(2) { animation-delay: 1s; }
+.orbit-icon:nth-child(3) { animation-delay: 2s; }
+.orbit-icon:nth-child(4) { animation-delay: 3s; }
+.orbit-icon:nth-child(5) { animation-delay: 4s; }
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin: 10px auto;
+  display: block;
+  background: linear-gradient(to right, #6f00ff, #bb00ff);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #bb00ff;
+}
+
+/* Miner Upgrades */
+.tiers {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.miner-card {
+  background: #1e0033;
+  border: 1px solid #5000a0;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.miner-card h3 {
+  color: #ffccff;
+}
+
+.miner-card p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.miner-card .price {
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+.upgrade-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 10px;
+}
+
+/* Referrals */
+#referrals input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #140028;
+  color: #fff;
+}
+
+.referral-code {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2a004a;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.ref-list {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* Withdraw */
+#withdraw input {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #12001e;
+  color: #fff;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 0.9rem;
+  color: #666;
+}
