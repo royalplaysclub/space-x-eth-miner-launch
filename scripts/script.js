@@ -1,36 +1,65 @@
-// DOM Elements
-const balanceDisplay = document.getElementById('eth-balance');
-const dailyClaimBtn = document.getElementById('daily-claim');
-const treasureClaimBtn = document.getElementById('treasure-claim');
-const dailyTimer = document.getElementById('daily-timer');
-const treasureTimer = document.getElementById('treasure-timer');
-const miningWheel = document.getElementById('mining-wheel');
-const startMiningBtn = document.getElementById('start-mining');
+// =======================
+// 🌌 SPACE X ETH MINER JS
+// Fully Refactored + Advanced Logic
+// =======================
+
+// ==== 🔁 UTILITY FUNCTIONS ====
+
+// Format milliseconds into readable HH:MM:SS
+const formatTime = (ms) => {
+  const sec = Math.floor(ms / 1000);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return `${h}h ${m}m ${s}s`;
+};
+
+// Get & Save from Local Storage
+const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const load = (key, fallback = null) => {
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : fallback;
+};
+
+// ==== 🔗 DOM ELEMENTS ====
+
+const $ = (id) => document.getElementById(id);
+const balanceDisplay = $('eth-balance');
+const dailyClaimBtn = $('daily-claim');
+const treasureClaimBtn = $('treasure-claim');
+const dailyTimer = $('daily-timer');
+const treasureTimer = $('treasure-timer');
+const miningWheel = $('mining-wheel');
+const startMiningBtn = $('start-mining');
 const tiersContainer = document.querySelector('.tiers');
-const refCodeDisplay = document.getElementById('ref-code');
-const refInput = document.getElementById('ref-input');
-const submitRefBtn = document.getElementById('submit-ref');
-const refList = document.getElementById('ref-list');
-const withdrawBtn = document.getElementById('withdraw-btn');
-const walletInput = document.getElementById('wallet-address');
-const withdrawStatus = document.getElementById('withdraw-status');
+const refCodeDisplay = $('ref-code');
+const refInput = $('ref-input');
+const submitRefBtn = $('submit-ref');
+const refList = $('ref-list');
+const withdrawBtn = $('withdraw-btn');
+const walletInput = $('wallet-address');
+const withdrawStatus = $('withdraw-status');
 
-// Local Storage State
-let balance = parseFloat(localStorage.getItem('eth-balance')) || 0;
-let lastDailyClaim = parseInt(localStorage.getItem('last-daily-claim')) || 0;
-let lastTreasureClaim = parseInt(localStorage.getItem('last-treasure-claim')) || 0;
-let selectedMiner = localStorage.getItem('selected-miner') || 'basic';
-let referrals = JSON.parse(localStorage.getItem('referrals')) || [];
-let referralBonus = 0.0008;
-let miningInterval;
-let ethPerSec = 0.0000000;
+// ==== 💰 GAME STATE ====
 
-// Miner Tiers
+let balance = load('eth-balance', 0);
+let lastDailyClaim = load('last-daily-claim', 0);
+let lastTreasureClaim = load('last-treasure-claim', 0);
+let selectedMiner = load('selected-miner', 'Basic Miner');
+let ethPerSec = load('eth-sec', 0.0);
+let referrals = load('referrals', []);
+let miningInterval = null;
+
+const REFERRAL_BONUS = 0.0008;
+const ETH_PRICE_USD = 3200; // Fixed rate for withdraw logic
+
+// ==== 🧱 MINER TIERS ====
+
 const minerTiers = [
   {
     name: 'Basic Miner',
     daily: 0.008,
-    ethSec: 0.0000000,
+    ethSec: 0.0,
     price: 0,
     desc: 'Starter tier — good for beginners',
   },
@@ -57,7 +86,22 @@ const minerTiers = [
   }
 ];
 
-// Render miner cards
+// ==== ⚙️ CORE FUNCTIONS ====
+
+function updateBalance() {
+  balanceDisplay.textContent = balance.toFixed(6);
+  save('eth-balance', balance);
+}
+
+function setMinerTier(index) {
+  selectedMiner = minerTiers[index].name;
+  ethPerSec = minerTiers[index].ethSec;
+  save('selected-miner', selectedMiner);
+  save('eth-sec', ethPerSec);
+  renderTiers();
+  alert(`✅ Activated: ${selectedMiner}`);
+}
+
 function renderTiers() {
   tiersContainer.innerHTML = '';
   minerTiers.forEach((tier, index) => {
@@ -67,124 +111,106 @@ function renderTiers() {
       <h3>${tier.name}</h3>
       <p>💰 Daily: ${tier.daily} ETH</p>
       <p>⚙️ ETH/sec: ${tier.ethSec}</p>
-      <p class="price">💵 ${tier.price > 0 ? '$' + tier.price : 'Free'}</p>
+      <p class="price">${tier.price > 0 ? `$${tier.price}` : 'Free'}</p>
       <p>${tier.desc}</p>
-      ${selectedMiner === tier.name ? '<p class="upgrade-note">✅ Active</p>' : `<button onclick="selectMiner(${index})">Activate</button>`}
+      ${selectedMiner === tier.name
+        ? '<p class="upgrade-note">✅ Active</p>'
+        : `<button onclick="setMinerTier(${index})">Activate</button>`}
     `;
     tiersContainer.appendChild(card);
   });
 }
 
-// Select Miner Tier
-function selectMiner(index) {
-  selectedMiner = minerTiers[index].name;
-  ethPerSec = minerTiers[index].ethSec;
-  localStorage.setItem('selected-miner', selectedMiner);
-  localStorage.setItem('eth-sec', ethPerSec);
-  renderTiers();
-  alert(`Activated: ${selectedMiner}`);
-}
-
-// Mining Animation + Income
 function startMining() {
-  clearInterval(miningInterval);
+  if (miningInterval) clearInterval(miningInterval);
   miningWheel.style.animation = 'rotateWheel 2s linear infinite';
 
   miningInterval = setInterval(() => {
     balance += ethPerSec;
     updateBalance();
-    localStorage.setItem('eth-balance', balance.toFixed(6));
   }, 1000);
 }
 
-// Update ETH Balance UI
-function updateBalance() {
-  balanceDisplay.textContent = balance.toFixed(6);
-}
+// ==== 🎁 CLAIM FUNCTIONS ====
 
-// Claim Functions
-function claimDaily() {
+function claim(type = 'daily') {
   const now = Date.now();
-  if (now - lastDailyClaim < 86400000) {
-    alert("⏱️ Wait 24h before next daily claim!");
+  const key = type === 'daily' ? 'last-daily-claim' : 'last-treasure-claim';
+  const lastClaim = type === 'daily' ? lastDailyClaim : lastTreasureClaim;
+  const cooldown = type === 'daily' ? 86400000 : 3600000; // 24h or 1h
+  const min = type === 'daily' ? 0.00001 : 0.000005;
+  const max = type === 'daily' ? 0.00012 : 0.00004;
+
+  if (now - lastClaim < cooldown) {
+    alert(`⏱️ ${type === 'daily' ? 'Daily' : 'Treasure'} not ready yet!`);
     return;
   }
 
-  const reward = (Math.random() * 0.00012 + 0.00001).toFixed(6);
-  balance += parseFloat(reward);
-  lastDailyClaim = now;
-  localStorage.setItem('eth-balance', balance.toFixed(6));
-  localStorage.setItem('last-daily-claim', now);
-  updateBalance();
-  alert(`🎉 You claimed ${reward} ETH`);
-}
-
-function claimTreasure() {
-  const now = Date.now();
-  if (now - lastTreasureClaim < 3600000) {
-    alert("⏱️ Wait 1 hour before claiming treasure again!");
-    return;
+  const reward = parseFloat((Math.random() * (max - min) + min).toFixed(6));
+  balance += reward;
+  save('eth-balance', balance);
+  if (type === 'daily') {
+    lastDailyClaim = now;
+    save('last-daily-claim', now);
+  } else {
+    lastTreasureClaim = now;
+    save('last-treasure-claim', now);
   }
-
-  const reward = (Math.random() * 0.00004 + 0.000005).toFixed(6);
-  balance += parseFloat(reward);
-  lastTreasureClaim = now;
-  localStorage.setItem('eth-balance', balance.toFixed(6));
-  localStorage.setItem('last-treasure-claim', now);
   updateBalance();
-  alert(`🔐 You claimed a treasure: ${reward} ETH`);
+  alert(`🎉 You claimed ${reward} ETH from ${type === 'daily' ? 'daily' : 'treasure'} reward!`);
 }
 
-// Timer Checkers
 function updateTimers() {
   const now = Date.now();
-  const dailyLeft = Math.max(0, 86400000 - (now - lastDailyClaim));
-  const treasureLeft = Math.max(0, 3600000 - (now - lastTreasureClaim));
-
-  dailyTimer.textContent = dailyLeft > 0 ? `Next claim in: ${formatTime(dailyLeft)}` : 'Claim ready!';
-  treasureTimer.textContent = treasureLeft > 0 ? `Treasure in: ${formatTime(treasureLeft)}` : 'Treasure ready!';
+  const dailyRemaining = 86400000 - (now - lastDailyClaim);
+  const treasureRemaining = 3600000 - (now - lastTreasureClaim);
+  dailyTimer.textContent = dailyRemaining > 0 ? `Next claim: ${formatTime(dailyRemaining)}` : '✅ Claim Ready!';
+  treasureTimer.textContent = treasureRemaining > 0 ? `Treasure: ${formatTime(treasureRemaining)}` : '💎 Ready!';
 }
+// ==== 👥 REFERRAL SYSTEM ====
 
-function formatTime(ms) {
-  const totalSec = Math.floor(ms / 1000);
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  return `${h}h ${m}m ${s}s`;
-}
-
-// Referral Logic
-function generateRefCode() {
-  const code = 'REF' + Math.floor(Math.random() * 100000);
-  localStorage.setItem('ref-code', code);
-  return code;
-}
-
-function addReferral() {
-  const inputCode = refInput.value.trim();
-  if (!inputCode || inputCode === localStorage.getItem('ref-code')) {
-    alert("⚠️ Invalid referral code.");
-    return;
-  }
-
-  referrals.push({ code: inputCode, earned: referralBonus });
-  balance += referralBonus;
-  localStorage.setItem('eth-balance', balance.toFixed(6));
-  localStorage.setItem('referrals', JSON.stringify(referrals));
-  updateBalance();
-  showReferrals();
+function generateReferralCode() {
+  const stored = localStorage.getItem('ref-code');
+  if (stored) return stored;
+  const newCode = 'REF' + Math.floor(Math.random() * 99999 + 10000);
+  localStorage.setItem('ref-code', newCode);
+  return newCode;
 }
 
 function showReferrals() {
-  refList.innerHTML = referrals.map(r => `
-    <div class="referral-code">
-      <span>${r.code}</span>
-      <span>+${r.earned} ETH</span>
-    </div>
-  `).join('');
+  refList.innerHTML = referrals.length
+    ? referrals.map(r => `
+        <div class="referral-code">
+          <span>${r.code}</span>
+          <span>+${r.earned} ETH</span>
+        </div>`).join('')
+    : '<p>No referrals yet.</p>';
 }
 
-// Withdraw Logic
+function addReferral() {
+  const code = refInput.value.trim();
+  const selfCode = localStorage.getItem('ref-code');
+  if (!code || code === selfCode) {
+    alert("⚠️ Invalid or self-referral.");
+    return;
+  }
+
+  // Prevent duplicates
+  if (referrals.some(ref => ref.code === code)) {
+    alert("✅ You've already claimed this referral.");
+    return;
+  }
+
+  referrals.push({ code, earned: REFERRAL_BONUS });
+  balance += REFERRAL_BONUS;
+  updateBalance();
+  save('referrals', referrals);
+  showReferrals();
+  alert(`🎁 Referral bonus claimed: +${REFERRAL_BONUS} ETH`);
+}
+
+// ==== 🏦 WITHDRAWAL SYSTEM ====
+
 function handleWithdraw() {
   const wallet = walletInput.value.trim();
   if (!wallet || !wallet.startsWith('0x') || wallet.length < 20) {
@@ -192,35 +218,41 @@ function handleWithdraw() {
     return;
   }
 
-  const usdValue = balance * 3200; // Assume ETH = $3200
+  const usdValue = balance * ETH_PRICE_USD;
   if (usdValue < 100) {
     withdrawStatus.textContent = `⛔ You need at least $100 (currently $${usdValue.toFixed(2)})`;
     return;
   }
 
-  withdrawStatus.textContent = "✅ Withdrawal request sent. Processing manually.";
-  // Here you would forward wallet + balance to admin inbox or webhook
+  withdrawStatus.textContent = "✅ Withdrawal sent to admin. Processing...";
+
+  // Simulate sending to backend (e.g., via webhook/API/email)
+  console.log("Withdrawal request:", { wallet, amount: balance.toFixed(6) });
+
+  // Reset
   balance = 0;
   updateBalance();
-  localStorage.setItem('eth-balance', '0');
+  save('eth-balance', balance);
 }
 
-// Initialization
-function init() {
+// ==== 🚀 INITIALIZATION ====
+
+function initializeApp() {
   updateBalance();
   renderTiers();
   showReferrals();
-  refCodeDisplay.textContent = localStorage.getItem('ref-code') || generateRefCode();
-  setInterval(updateTimers, 1000);
+  refCodeDisplay.textContent = generateReferralCode();
   updateTimers();
+  setInterval(updateTimers, 1000);
 }
 
-// Event Listeners
-dailyClaimBtn.addEventListener('click', claimDaily);
-treasureClaimBtn.addEventListener('click', claimTreasure);
+// ==== 🖱️ EVENT LISTENERS ====
+
+dailyClaimBtn.addEventListener('click', () => claim('daily'));
+treasureClaimBtn.addEventListener('click', () => claim('treasure'));
 startMiningBtn.addEventListener('click', startMining);
 submitRefBtn.addEventListener('click', addReferral);
 withdrawBtn.addEventListener('click', handleWithdraw);
 
-// Start
-init();
+// ==== 🔓 START ====
+initializeApp();

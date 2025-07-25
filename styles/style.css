@@ -1,4 +1,6 @@
-/* Global Reset & Fonts */
+/*===========================
+  Global Reset & Base Styles
+===========================*/
 * {
   margin: 0;
   padding: 0;
@@ -6,85 +8,110 @@
   font-family: 'Orbitron', sans-serif;
 }
 
-body {
-  background: radial-gradient(circle at bottom, #0b001a 0%, #000010 100%);
+html, body {
+  scroll-behavior: smooth;
+  background: radial-gradient(circle at bottom, #0a0017 0%, #000010 100%);
   color: #ffffff;
   min-height: 100vh;
-  position: relative;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Stars Background Animation */
+/*===========================
+  Animated Stars Background
+===========================*/
 #background-stars {
   position: fixed;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
   background: url('../assets/images/stars.gif') repeat;
   background-size: cover;
   z-index: -1;
   opacity: 0.15;
+  pointer-events: none;
+  animation: twinkle 10s infinite alternate ease-in-out;
 }
 
-/* Main App Container */
+@keyframes twinkle {
+  0% { opacity: 0.12; transform: scale(1); }
+  100% { opacity: 0.18; transform: scale(1.05); }
+}
+
+/*===========================
+  Layout Container
+===========================*/
 #app {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: auto;
   padding: 30px 20px;
+  animation: fadeIn 2s ease;
 }
 
-/* Header */
+/*===========================
+  Header Styles
+===========================*/
 header {
   text-align: center;
   margin-bottom: 40px;
+  animation: floatIn 1.5s ease;
 }
 
 header h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: #bb86fc;
-  text-shadow: 0 0 10px #8a2be2;
+  text-shadow: 0 0 10px #9f00ff, 0 0 20px #5900a0;
 }
 
 .tagline {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #cccccc;
-  margin-top: 5px;
+  margin-top: 10px;
 }
 
 .balance-box {
-  background: #1c0033;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  margin-top: 15px;
   display: inline-block;
+  background: linear-gradient(to right, #1a0033, #26003f);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  margin-top: 18px;
   border: 1px solid #8220d1;
+  box-shadow: 0 0 10px #8220d1aa;
 }
 
-/* Sections */
+/*===========================
+  Section Wrapper
+===========================*/
 section {
-  margin: 40px 0;
-  padding: 20px;
-  background: rgba(20, 0, 40, 0.6);
+  background: rgba(20, 0, 40, 0.65);
   border: 1px solid #3e0c70;
-  border-radius: 15px;
+  border-radius: 18px;
+  margin: 40px 0;
+  padding: 25px 20px;
+  box-shadow: 0 0 10px rgba(128, 0, 255, 0.2);
+  animation: slideIn 1.2s ease;
 }
 
 section h2 {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #f2a5ff;
   margin-bottom: 20px;
   text-align: center;
+  text-shadow: 0 0 6px #ff00ff33;
 }
 
-/* Mining Wheel */
+/*===========================
+  Mining Wheel & Orbit
+===========================*/
 .wheel-container {
   position: relative;
   text-align: center;
 }
 
 .wheel {
-  width: 220px;
-  height: 220px;
+  width: 250px;
+  height: 250px;
   animation: rotateWheel 0s linear infinite;
 }
 
@@ -93,7 +120,6 @@ section h2 {
   to { transform: rotate(360deg); }
 }
 
-/* Orbiting Icons Around Wheel */
 .orbit-items {
   position: absolute;
   top: 0; left: 50%;
@@ -105,10 +131,11 @@ section h2 {
 
 .orbit-icon {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   animation: orbit 6s linear infinite;
-  transform-origin: 110px center;
+  transform-origin: 130px center;
+  filter: drop-shadow(0 0 6px #a000ff88);
 }
 
 .orbit-icon:nth-child(1) { animation-delay: 0s; }
@@ -118,72 +145,96 @@ section h2 {
 .orbit-icon:nth-child(5) { animation-delay: 4s; }
 
 @keyframes orbit {
-  from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
 }
 
-/* Buttons */
+/*===========================
+  Buttons
+===========================*/
 button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1.05rem;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
-  margin: 10px auto;
+  margin: 12px auto;
   display: block;
   background: linear-gradient(to right, #6f00ff, #bb00ff);
   color: #fff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px #bb00ff55;
 }
 
 button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px #bb00ff;
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #dd00ff;
 }
 
-/* Miner Upgrades */
+/*===========================
+  Miner Upgrades
+===========================*/
 .tiers {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .miner-card {
   background: #1e0033;
   border: 1px solid #5000a0;
-  padding: 15px;
-  border-radius: 10px;
+  padding: 18px;
+  border-radius: 12px;
   text-align: center;
+  box-shadow: 0 0 10px #4a0072aa;
+  transition: transform 0.3s ease;
+}
+
+.miner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #aa00ff88;
 }
 
 .miner-card h3 {
   color: #ffccff;
+  font-size: 1.3rem;
 }
 
 .miner-card p {
-  margin: 6px 0;
-  font-size: 0.95rem;
+  margin: 8px 0;
+  font-size: 1rem;
+  color: #eee;
 }
 
 .miner-card .price {
   color: #00ffcc;
   font-weight: bold;
+  font-size: 1.1rem;
 }
 
-.upgrade-note {
+/*===========================
+  Claim Section
+===========================*/
+#claim-section button {
+  background: linear-gradient(to right, #0077ff, #00c9ff);
+}
+
+#claim-section p {
   text-align: center;
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 10px;
+  color: #aaa;
+  font-size: 0.95rem;
+  margin-top: 8px;
 }
 
-/* Referrals */
+/*===========================
+  Referrals Section
+===========================*/
 #referrals input {
   width: 100%;
-  padding: 8px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 8px;
   border: 1px solid #333;
   background: #140028;
   color: #fff;
@@ -194,31 +245,55 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   background: #2a004a;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
   margin-bottom: 10px;
 }
 
 .ref-list {
   margin-top: 10px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  color: #ccc;
 }
 
-/* Withdraw */
+/*===========================
+  Withdraw Section
+===========================*/
 #withdraw input {
   width: 100%;
-  padding: 10px;
-  margin: 12px 0;
+  padding: 12px;
+  margin: 14px 0;
   border-radius: 8px;
   border: 1px solid #444;
   background: #12001e;
   color: #fff;
 }
 
-/* Footer */
+/*===========================
+  Footer
+===========================*/
 footer {
   text-align: center;
   margin-top: 60px;
   font-size: 0.9rem;
-  color: #666;
+  color: #777;
+  opacity: 0.8;
+}
+
+/*===========================
+  Utility Animations
+===========================*/
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideIn {
+  0% { transform: translateX(-60px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
 }
